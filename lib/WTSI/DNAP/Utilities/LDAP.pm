@@ -86,9 +86,9 @@ sub map_groups_to_users {
   my ($group2users, $gid2group) = $self->find_group_ids;
   my $user2gid = $self->find_primary_gid();
 
-  my @public = ();
+  #my @public = ();
   foreach my $uname ( keys %{ $user2gid } ) {
-    push @public, $uname;
+    #push @public, $uname;
     my $gid = $user2gid->{$uname};
 
     my $primary_group = $gid2group->{$gid};
@@ -107,6 +107,28 @@ sub map_groups_to_users {
   }
 
   return $group2users;
+}
+
+sub map_users_to_groups {
+  my ($self) = @_;
+  my ($group2users, $gid2group) = $self->find_group_ids;
+  my $user2gid = $self->find_primary_gid;
+  my %user2groups;
+
+  foreach my $uname ( keys %{ $user2gid } ) {
+    my @groups;
+    push @groups, $gid2group->{$user2gid->{$uname}};
+
+    foreach my $group ( keys %{ $group2users } ) {
+      if ( grep(/^$uname$/, @{$group2users->{$group}}) ) {
+        push @groups, $group;
+      }
+    }
+
+    $user2groups{$uname} = \@groups;
+  }
+
+  return \%user2groups;
 }
 
 sub map_groups_to_emails {
